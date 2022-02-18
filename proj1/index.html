@@ -1,191 +1,228 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 1 - Jacob Jiang
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<style>
+		body {
+			padding: 100px;
+			width: 1000px;
+			margin: auto;
+			text-align: left;
+			font-weight: 300;
+			font-family: 'Open Sans', sans-serif;
+			color: #121212;
+		}
 
-		<p>
-			Overview:
-			<br />
-			In this project, I implemented code to rasterize triangles, including textured triangles and interpolated color triangles. I also implemented different sampling methods to get rid 
-			of aliasing, such as supersampling, pixel sampling, and texture sampling. These methods worked in varying degrees to reduce jagged edges in various images and smooth out certain
-			colors and textures. There was a small portion relating to translating parts of an image as well. Overall, it was interesting to be able to see these techniques applied to example
-			images, particularly applying them to our own images for part 6. 
+		h1, h2, h3, h4 {
+			font-family: 'Source Sans Pro', sans-serif;
+		}
+	</style>
+	<title>CS 184 Rasterizer</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+</head>
 
-		</p>
 
-		<p>
-			Task 1:
+<body>
 
-			<br />
+	<h1 align="middle">CS 184: Computer Graphics and Imaging, Spring 2022</h1>
+	<h1 align="middle">Project 1: Rasterizer</h1>
+	<h2 align="middle">Jacob Jiang</h2>
 
-			To rasterize triangles, I use the minimum x and y coordinates to create a bounding box for the triangle. I Iooped through all the points in this triangle using a nested while loop
-			and used the 3 line test for each x,y pair to check if the sample was inside the triangle. If it was inside the triangle, I filled the pixel with the specified color.
+	<br><br>
 
-			This algorithm is no worse than one that checks each sample within the bounding box of the triangle because it literally checks each sample within the bounding box of the triangle,
-			so it must have the same runtime/time complexity.
+		<div>
 
-		</p>
+			<h2 align="middle">Overview</h2>
+			<p>
+				In this project, I implemented code to rasterize triangles, including textured triangles and interpolated color triangles. I also implemented different sampling methods to get rid
+				of aliasing, such as supersampling, pixel sampling, and texture sampling. These methods worked in varying degrees to reduce jagged edges in various images and smooth out certain
+				colors and textures. There was a small portion relating to translating parts of an image as well. Overall, it was interesting to be able to see these techniques applied to example
+				images, particularly applying them to our own images for part 6.
+			</p>
 
-		<p>
-			<img src="./images/part 1.png">
-		</p>
+			<br><br>
 
-		<p>
-			Task 2:
+			<h2 align="middle">Section I: Rasterization</h2>
 
-			<br />
+			<h3 align="middle">Part 1: Rasterizing single-color triangles</h3>
 
-			To implement supersampling, I had to allow the sample buffer vector to change size based on the sample rate. I then modified rasterize_triangle and created a quadraple for loop
-			in order to loop through all of the x and y coordinates within the bounding box for triangles as well as looping through the number of samples specified by the sample rate for
-			each x,y pair. Then to transfer the color data from the sample buffer into the frame buffer to color in the images, I had to downsize the sample buffer back to the original size.
-			Within resolve_to_framebuffer, I looped through all the coordinates within the width and height of the image and the number of samples specified by the sample rate for each
-			coordinate, averaging the color of each of those pixels together by averaging their individual r, g, and b values and creating a new color object. The address of this color object
-			was then stored in the framebuffer, allowing the images to be colored.
+			<p>
 
-			Supersampling was useful because it helped smooth out the edges on the images and removed jaggies. The rasterization pipeline was altered because now the color of each sample is
-			first written into the sample buffer which gets resized and then those samples are averaged before being given to the framebuffer, adding in an extra step. This removes aliasing
-			because we are sampling more points near the edge of the triangles and thus removing harsh edges by averaging together the color values of points outside and inside the edge.
+				To rasterize triangles, I use the minimum x and y coordinates to create a bounding box for the triangle. I Iooped through all the points in this triangle using a nested while loop
+				and used the 3 line test for each x,y pair to check if the sample was inside the triangle. If it was inside the triangle, I filled the pixel with the specified color.
 
-		</p>
+				This algorithm is no worse than one that checks each sample within the bounding box of the triangle because it literally checks each sample within the bounding box of the triangle,
+				so it must have the same runtime/time complexity.
 
-		<p>
-			Sample Rate 1:
-			<br />
-			<img src="./images/part 2 - rate 1.png">
-			<br />
+			</p>
 
-			Sample Rate 4:
-			<br />
-			<img src="./images/part 2 - rate 4.png">
-			<br />
+			<p>
+				<img src="./images/part 1.png">
+			</p>
 
-			Sample Rate 9:
-			<br />
-			<img src="./images/part 2 - rate 9.png">
-			<br />
+			<br><br>
 
-			Sample Rate 16:
-			<br />
-			<img src="./images/part 2 - rate 16.png">
-			<br />
-			The edges become less jagged because since we are super sampling, the edges are smoothed out by averaging the color values of the points around the edges of the triangles.
+			<h3 align="middle">Part 2: Antialiasing triangles</h3>
 
-		</p>
+			<p>
 
-		<p>
-			Task 3:
+				To implement supersampling, I had to allow the sample buffer vector to change size based on the sample rate. I then modified rasterize_triangle and created a quadraple for loop
+				in order to loop through all of the x and y coordinates within the bounding box for triangles as well as looping through the number of samples specified by the sample rate for
+				each x,y pair. Then to transfer the color data from the sample buffer into the frame buffer to color in the images, I had to downsize the sample buffer back to the original size.
+				Within resolve_to_framebuffer, I looped through all the coordinates within the width and height of the image and the number of samples specified by the sample rate for each
+				coordinate, averaging the color of each of those pixels together by averaging their individual r, g, and b values and creating a new color object. The address of this color object
+				was then stored in the framebuffer, allowing the images to be colored.
 
-			<br />
+				Supersampling was useful because it helped smooth out the edges on the images and removed jaggies. The rasterization pipeline was altered because now the color of each sample is
+				first written into the sample buffer which gets resized and then those samples are averaged before being given to the framebuffer, adding in an extra step. This removes aliasing
+				because we are sampling more points near the edge of the triangles and thus removing harsh edges by averaging together the color values of points outside and inside the edge.
 
-			I gave my cubeman purple pants and had him attempt to do the splits. However, he is not very flexible.
+			</p>
 
-		</p>
+			<p>
+				Sample Rate 1:
+				<br />
+				<img src="./images/part 2 - rate 1.png">
+				<br />
 
-		<p>
-			<img src="./images/part 3.png">
-		</p>
+				Sample Rate 4:
+				<br />
+				<img src="./images/part 2 - rate 4.png">
+				<br />
 
-		<p>
-			Task 4:
+				Sample Rate 9:
+				<br />
+				<img src="./images/part 2 - rate 9.png">
+				<br />
 
-			<br />
-			<img src="./images/part 4 tri.png">
+				Sample Rate 16:
+				<br />
+				<img src="./images/part 2 - rate 16.png">
+				<br />
+				The edges become less jagged because since we are super sampling, the edges are smoothed out by averaging the color values of the points around the edges of the triangles.
 
-		</p>
+			</p>
 
-		<p>
+			<br><br>
 
-			Barycentric coordinates are coordinates that linearly interpolate the texture, color, etc. attributes at the vertices to all the points in the shape.
-			In the triangle example above, the color values of each vertex are unique and you can see that the triangle is filled with a mix of those 3 color values
-			with varying amounts of each color depending on how close the point in the triangle is to each vertex.
+			<h3 align="middle">Part 3: Transforms</h3>
 
-		</p>
+			<p>
 
-		<p>
-			<img src="./images/part 4.png">
-		</p>
+				I gave my cubeman purple pants and had him attempt to do the splits. However, he is not very flexible.
 
-		<p>
-			Task 5:
+			</p>
 
-			<br />
+			<p>
+				<img src="./images/part 3.png">
+			</p>
 
-			Pixel sampling is using information from nearby pixels to define attributes (color, texture) of the current pixel. In this part, we implemented two versions
-			of pixel sampling: nearest sampling and bilinear sampling. To perform texture mapping, I had to map each coordinate to the texture space using barycentric coordinates
-			and the dimensions of the given texture image. After getting the coordinate in texture space, I used pixel sampling to get the color/texture for that location. I first
-			implemented Nearest Sampling, and just found the texture coordinate that was closest to the current location and gave the current location the same texture. Then, I
-			implemented Bilinear Sampling, where I took the 4 closest coordinates to the current location and then took a weighted average of those textures using linear interpolation.
+			<br><br>
 
-		</p>
+			<h2 align="middle">Section II: Sampling</h2>
 
-		<p>
-			Rate 1, Nearest:
-			<br />
-			<img src="./images/part 5 - 1near.png">
-		</p>
+			<h3 align="middle">Part 4: Barycentric coordinates</h3>
 
-		<p>
-			Rate 1, Bilinear:
-			<br />
-			<img src="./images/part 5 - 1bi.png">
-		</p>
+			<p>
 
-		<p>
-			Rate 16, Nearest:
-			<br />
-			<img src="./images/part 5 - 16near.png">
-		</p>
+				<img src="./images/part 4 tri.png">
 
-		<p>
-			Rate 16, Bilinear:
-			<br />
-			<img src="./images/part 5 - 16bi.png">
-		</p>
+			</p>
 
-		<p>
-			When scrolling from nearest sampling to bilinear sampling, there are subtle differences, but the bilinear sampling smooths out the edges of the image, especially when
-			the image transitions between two colors. Bilinear sampling also lessens how much certain pixels that are darker than the ones around it stand out and softens the image
-			overall. The largest difference between these two methods appear when there is a large transition between textures and colors in an image.
-		</p>
+			<p>
 
-		<p>
-			Task 6:
+				Barycentric coordinates are coordinates that linearly interpolate the texture, color, etc. attributes at the vertices to all the points in the shape.
+				In the triangle example above, the color values of each vertex are unique and you can see that the triangle is filled with a mix of those 3 color values
+				with varying amounts of each color depending on how close the point in the triangle is to each vertex.
 
-			<br />
+			</p>
 
-			Level sampling is taking texture/color information from different mipmap levels to define attributes of the current pixel in its current level. We implemented Nearest Level Sampling
-			and Linear Level Sampling. Nearest Level Sampling looked at the closest mipmap level to the current level and took texture/color information from it to place into our current point.
-			Meanwhile Linear Level Sampling looked at the two mipmap levels closest to the current level and took a weighted average of the texture/color information from it for our current
-			point. Thus, we used thse techniques to perform texture mapping as we were able to use the texture of nearby mipmaps to map out the textures of our image. Supersampling, or increasing
-			the number of pixels per sample is very effective in reducing antialiasing, but is very costly for memory usage. Meanwhile, pixel sampling and level sampling are also able to reduce
-			antialiasing at a lower cost, but can be less effective or are most effective in specific situations. 
+			<p>
+				<img src="./images/part 4.png">
+			</p>
 
-		</p>
+			<br><br>
 
-		<p>
-			Level 0, Nearest:
-			<br />
-			<img src="./images/nearest - lvl 0.png">
-		</p>
+			<h3 align="middle">Part 5: "Pixel sampling" for texture mapping</h3>
 
-		<p>
-			Level 0, Bilinear:
-			<br />
-			<img src="./images/bilinear - lvl 0.png">
-		</p>
+			<p>
 
-		<p>
-			Nearest Level, Nearest:
-			<br />
-			<img src="./images/bilinear - near lvl.png">
-		</p>
+				Pixel sampling is using information from nearby pixels to define attributes (color, texture) of the current pixel. In this part, we implemented two versions
+				of pixel sampling: nearest sampling and bilinear sampling. To perform texture mapping, I had to map each coordinate to the texture space using barycentric coordinates
+				and the dimensions of the given texture image. After getting the coordinate in texture space, I used pixel sampling to get the color/texture for that location. I first
+				implemented Nearest Sampling, and just found the texture coordinate that was closest to the current location and gave the current location the same texture. Then, I
+				implemented Bilinear Sampling, where I took the 4 closest coordinates to the current location and then took a weighted average of those textures using linear interpolation.
 
-		<p>
-			Nearest Level, Bilinear:
-			<br />
-			<img src="./images/bilinear - near lvl.png">
-		</p>
+			</p>
 
-	</body>
+			<p>
+				Rate 1, Nearest:
+				<br />
+				<img src="./images/part 5 - 1near.png">
+			</p>
+
+			<p>
+				Rate 1, Bilinear:
+				<br />
+				<img src="./images/part 5 - 1bi.png">
+			</p>
+
+			<p>
+				Rate 16, Nearest:
+				<br />
+				<img src="./images/part 5 - 16near.png">
+			</p>
+
+			<p>
+				Rate 16, Bilinear:
+				<br />
+				<img src="./images/part 5 - 16bi.png">
+			</p>
+
+			<p>
+				When scrolling from nearest sampling to bilinear sampling, there are subtle differences, but the bilinear sampling smooths out the edges of the image, especially when
+				the image transitions between two colors. Bilinear sampling also lessens how much certain pixels that are darker than the ones around it stand out and softens the image
+				overall. The largest difference between these two methods appear when there is a large transition between textures and colors in an image.
+			</p>
+
+			<br><br>
+
+			<h3 align="middle">Part 6: "Level sampling" with mipmaps for texture mapping</h3>
+
+			<p>
+
+				Level sampling is taking texture/color information from different mipmap levels to define attributes of the current pixel in its current level. We implemented Nearest Level Sampling
+				and Linear Level Sampling. Nearest Level Sampling looked at the closest mipmap level to the current level and took texture/color information from it to place into our current point.
+				Meanwhile Linear Level Sampling looked at the two mipmap levels closest to the current level and took a weighted average of the texture/color information from it for our current
+				point. Thus, we used thse techniques to perform texture mapping as we were able to use the texture of nearby mipmaps to map out the textures of our image. Supersampling, or increasing
+				the number of pixels per sample is very effective in reducing antialiasing, but is very costly for memory usage. Meanwhile, pixel sampling and level sampling are also able to reduce
+				antialiasing at a lower cost, but can be less effective or are most effective in specific situations.
+
+			</p>
+
+			<p>
+				Level 0, Nearest:
+				<br />
+				<img src="./images/nearest - lvl 0.png">
+			</p>
+
+			<p>
+				Level 0, Bilinear:
+				<br />
+				<img src="./images/bilinear - lvl 0.png">
+			</p>
+
+			<p>
+				Nearest Level, Nearest:
+				<br />
+				<img src="./images/bilinear - near lvl.png">
+			</p>
+
+			<p>
+				Nearest Level, Bilinear:
+				<br />
+				<img src="./images/bilinear - near lvl.png">
+			</p>
+
+</body>
 </html>
