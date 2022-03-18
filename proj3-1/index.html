@@ -20,8 +20,14 @@
 
     <div class="padded">
         <p>
-            blah blah blah overview overview we want this to be a piece of work which showcases your understanding of relevant concepts through both mesh images as well as written explanations about what you did to complete each part of the assignment. Try to be as clear and organized as possible when writing about your own output files or extensions to the assignment. We want to understand what you've achieved and how you've done it!
-            BAIDSJFOASDJFOASDIFJJAOSDIF
+            In this project, I was able to generate rays and calculate their intersections with triangles, spheres, and planes. Using rays and their intersections, I was able to render objects with normal shading. I then
+            worked on constructing a bounding volume hierarchy to increase the efficiency of finding intersections between a ray and the objects in the images. Instead of looping through the entire bounding box of an object 
+            to render it, I recursively traversed through the bounding volume hierarchy, skipping portions where the ray didn't intersect with the bounding box and calculating intersections for all the primitives only when
+            I reached a leaf node of this tree structure. Thus, rendering images became much more efficient through this implementation. While working through Part 2 of this project, I spent multiple days trying to construct
+            a heuristic for the splitting of the bounding box that did not get stuck splitting 5 primitives into a section with 0 primitives in it (which caused an infinite loop). After attempting 10+ heuristics, I am still
+            unclear on what finally fixed my solution. It appears that one of the heursitics just began working after implementing tasks 2 and 3 of Part 2. The next portion of the project involved simulating light and rendering images with
+            realistic shading; however, I was only able to implement shading for zero-bounce illumination, as I did not have enough time to complete the direct lighting portion of this part or the rest of the project due to
+            the long rendering and debugging times and the excessive amount of time spent debugging Part 2. 
         </p>
     
     <br />
@@ -130,6 +136,11 @@
             this part to render correctly. 
         </p>
 
+        <br />
+        <br />
+
+        <p> https://cal-cs184-student.github.io/sp22-project-webpages-jacobtj/proj3-1/index.html </p>
+        
 
 
 
