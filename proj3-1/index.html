@@ -1,7 +1,143 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 3-1 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Jacob Jiang  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3: PathTracer</h1>
+    <h2 align="middle">Jacob Jiang</h2>
+
+    <div class="padded">
+        <p>
+            blah blah blah overview overview we want this to be a piece of work which showcases your understanding of relevant concepts through both mesh images as well as written explanations about what you did to complete each part of the assignment. Try to be as clear and organized as possible when writing about your own output files or extensions to the assignment. We want to understand what you've achieved and how you've done it!
+            BAIDSJFOASDJFOASDIFJJAOSDIF
+        </p>
+    
+    <br />
+    <h2 align="middle">Part 1: Ray Generation and Intersection</h2>
+        <p>
+            I generated rays by taking the coordinates of an image, converting those coordinates from image space to a ray in camera space using scaling and traslations, and then trasforming the ray from camera space
+            into world space. Then, I updated pixels in the sample buffer by generating rays and estimating the scene radiance along those rays to estimate the value of each pixel. To start rendering images, I
+            implemented ray triangle and ray sphere intersection functions. These ray intersesction functions are the start of rendering images as we could compute the intersection of a ray with every triangle in a mesh
+            to render that image. 
+        </p>
+        <p>
+            To define the ray triangle intersection function, I used the Möller Trumbore Algorithm which solves for the t in the ray equation r(t) = o + td that intersections the triangle and the barycentric
+            coordinates b0, b1, b2 that we can interpolate with the vertex normals of the triangle to calculate the surface normal at the intersection. I confirmed that the intersection was valid by making sure the value of 
+            t was greater than or equal to 0 and was between min_t and max_t of the Ray. I used these calculated values to update the properties of the Intersection object and the max_t of the ray. Below are some images with normal shading rendered using the above implementation.
+        </p>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/CBspheres.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                    <td>
+                        <img src="images/teapot.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                </tr>
+                <br />
+                <tr>
+                    <td>
+                        <img src="images/banana.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                    <td>
+                        <img src="images/cow.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                </tr>
+                <br />
+            </table>
+        </div>
+        
+        <br />
+        <h2 align="middle">Part 2: Bounding Volume Hierarchy</h2>
+        <p>
+            To construct a bounding volume hierarchy, I first initialized a bounding box. I then looped through all the primitives and used the expand()
+            function of the bounding box to create a bounding box that encompassed all of the primitives. Using this bounding box, I initalized a node. If the 
+            number of primitives was less than or equal to the max_leaf_size parameter, the node created would be a leaf node, so I set the start and end pointers
+            of the leaf node and returned it. If the number of primitives was greater than the max_leaf_size, then I needed to split the bounding box. To split the
+            bounding box, I used a heuristic that took the mean centroid of all the primitives and the max and min vectors of the bounding box. I used these 3 points
+            to create a plane to divide the bounding box. I used the partition function to divide the primitives into those that fell on one side of the plane and
+            those that fell on the opposite side of the plane. Because the plane included the mean centroid as one of the points, there would always be at least 1 
+            primitive that fell on either side of the plane, allowing for the splitting to continue. Below are some images generated using the bounding volume
+            hierarchy acceleration. 
+        </p>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/CBLucy.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                    <td>
+                        <img src="images/maxplanck.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                </tr>
+                <br />
+            </table>
+            <img src="images/bunny.png" align="middle" width="400px" />
+            <figcaption align="middle"></figcaption>
+        </div>
+
+        <br />
+        <br />
+        <p>
+            Below are some images with significant speed improvements due to the bounding volume hierarchy acceleration. Before the speedup, they took around 40-60
+            seconds to render.  Meanwhile, after the implementation of part 2, they render in less than a second (0.1579s for the cow and 0.1338s for the beetle). This speedup is due to the fact that we don't have 
+            to loop through the entire bounding box to check for intersections. We are able to skip a lot of that work by skipping over sections where there is 
+            no intersection between the ray and the bounding box, leading to the significant speedups seen.
+        </p>
+
+        <div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/cow2.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                    <td>
+                        <img src="images/beetle.png" align="middle" width="400px" />
+                        <figcaption align="middle"></figcaption>
+                    </td>
+                </tr>
+                <br />
+            </table>
+        </div>
+
+        <br />
+        <h2 align="middle">Part 3: Direct Illumination</h2>
+        <p>
+            For this part of the project, I was to complete and render images for Task 1: Diffuse BSDF and 2: Zero-bounce Illumination. For the first part, I returned the reflectance of the incoming and outgoing
+            solid angle vectors. For the second part, I returned the emission of objects that intersected the bounding box of the bvh. However, I was unable to get the images from the direct lighting portions of 
+            this part to render correctly. 
+        </p>
+
+
+
+
+    
+</div>
+</body>
 </html>
+
+
+
+
