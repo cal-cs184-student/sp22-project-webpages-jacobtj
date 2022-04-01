@@ -1,7 +1,169 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 3-2 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Jacob Jiang  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+<h1 align="middle">Assignment 3-2: PathTracer</h1>
+    <h2 align="middle">Jacob Jiang</h2>
+
+    <div class="padded">
+        <p>
+			In this project, I completed Part 1: Mirror and Glass Materials and Part 2: Microfacet Material. In Part 1, 
+			I was able to render a glass surface by implementing functions that mimic the reflection and refraction of light. 
+			To do this, I had to use Schlick's approximation to determine the ratio of reflection and refraction on the surface
+			of the glass. In Part 2, I was able to implement the Microfacet model that renders metal surfaces. I used importance
+			sampling to model the Beckmann NDF in order to do this. To achieve the correct color and surface of the metal
+			surface, I calculated an approximation of the air-conductor Fresnel term using two vectors that represented the indices
+			of refraction for conductors. 
+		</p>
+
+    <h2 align="middle">Part 1: Mirror and Glass Materials</h2>
+		<div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/zero.png" align="middle" width="400px" />
+                        <figcaption align="middle">Ray Depth: 0</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/one.png" align="middle" width="400px" />
+                        <figcaption align="middle">Ray Depth: 1</figcaption>
+                    </td>
+                </tr>
+                <br />
+                <tr>
+                    <td>
+                        <img src="images/two.png" align="middle" width="400px" />
+                        <figcaption align="middle">Ray Depth: 2</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/three.png" align="middle" width="400px" />
+                        <figcaption align="middle">Ray Depth: 3</figcaption>
+                    </td>
+                </tr>
+				<br />
+                <tr>
+                    <td>
+                        <img src="images/four.png" align="middle" width="400px" />
+                        <figcaption align="middle">Ray Depth: 4</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/five.png" align="middle" width="400px" />
+                        <figcaption align="middle">Ray Depth: 5</figcaption>
+                    </td>
+                </tr>
+                <br />
+            </table>
+			<img src="images/hundred.png" align="middle" width="400px" />
+                        <figcaption align="middle">Ray Depth: 100</figcaption>
+        </div>
+
+		<p>
+			We can see from the images above that as the ray depth increases, we are able to see the differences that result from more bounces of light. From ray depth 0, nothing is illuminated because the light 
+			doesn't bounce onto any of the objects. At the next ray depth, we are able to see the room and the spheres rendered. At ray depth 2, we are able to see the reflection of the room in the left sphere 
+			as it takes two bounces of light for that reflection to be appear in the sphere. At ray depth 4 and beyond, we can see that the reflection in the left sphere is fully rendered because the sphere in the 
+			reflection of the left sphere becomes colored purple rather than black, which required 4 bounces of light. Additionally, the right sphere becomes brighter as it needed 3+ bounces of light for the refraction
+			to properly render. 
+		</p>
+
+		<p>
+			I was able to generate these images after implementing a reflect and refract function and using Schlick's approximation to determine the ratio of reflection and refraction on the surface
+			of the glass in GlassBSDF::sample_f following equations from the spec. 
+		</p>
+
+		<br />
+		<br />
+
+		<h2 align="middle">Part 2: Microfacet Material</h2>
+		<div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/first.png" align="middle" width="400px" />
+                        <figcaption align="middle">α: 0.005</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/second.png" align="middle" width="400px" />
+                        <figcaption align="middle">α: 0.05</figcaption>
+                    </td>
+                </tr>
+                <br />
+                <tr>
+                    <td>
+                        <img src="images/third.png" align="middle" width="400px" />
+                        <figcaption align="middle">α: 0.25</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/fourth.png" align="middle" width="400px" />
+                        <figcaption align="middle">α: 0.5</figcaption>
+                    </td>
+                </tr>
+			</table>
+        </div>
+
+		<p>
+			We can see from the images above that as the alpha level increases, the surface becomes more diffuse. In the first
+			image at 0.005, the dragon surface is very glossy and has a lot more reflection on its surface. As we move up to the
+			fourth image at 0.5, there is barely any reflection.
+		</p>
+
+		<br />
+		<br />
+
+		<div align="center">
+            <table style="width=100%">
+                <tr>
+                    <td>
+                        <img src="images/hemisphere.png" align="middle" width="400px" />
+                        <figcaption align="center">Hemisphere Sampling</figcaption>
+                    </td>
+                    <td>
+                        <img src="images/importance.png" align="middle" width="400px" />
+                        <figcaption align="center">Importance Sampling</figcaption>
+                    </td>
+                </tr>
+			</table>
+        </div>
+
+		<p>
+			We can see from two images above that hemisphere sampling results in a lot of noise on the image seen in 
+			the black dots present throughout the surface of the image whereas using importance sampling results in a 
+			much cleaner and clearer image as there is only a small amount of noise present in the form of white specks. 
+		</p>
+		<br />
+		<br />
+		
+		<div align="center">
+            <img src="images/material.png" align="middle" width="400px" />
+            <figcaption align="middle">Material: Silver(Ag)</figcaption>
+        </div>
+		
+		<p>
+			The image above is the same bunny rendered earlier but using values for Silver instead of Copper.  
+		</p>
+
+		<p>
+			These results were all generated after implementing the equations for BRDF evalutation, the normal distribution function, 
+			the air-conductor Fresnel term, and importance sampling following the guidance on the spec. I ran into many bugs after
+			writing the code for each part and solved them through a combination of printing out the pdf value to ensure that it was
+			always being set to a positive number and making sure that the z coordinate for input vectors were greater than 0. 
+		</p>
+
+	</div>
+</body>
 </html>
+
+
+
