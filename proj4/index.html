@@ -1,7 +1,383 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 4 here
-	</body>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <style>  
+    div.padded {  
+      padding-top: 0px;  
+      padding-right: 100px;  
+      padding-bottom: 0.25in;  
+      padding-left: 100px;  
+    }  
+  </style> 
+<title>Jacob Jiang  |  CS 184</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="style.css" media="screen" />
+</head>
+<body>
+<br />
+
+<h1 align="middle">Assignment 4: Cloth Simulator</h1>
+    <h2 align="middle">Jacob Jiang</h2>
+
+<div>
+
+<h2 align="middle">Overview</h2>
+<div class="padded">
+<p>
+  In this project, I implemented a program to simulate a cloth using a system of point masses and springs and its interactions and collisions with objects such as spheres and planes using the forces
+  that act on the point masses. Finally, I implemented shaders to render textures and colors onto this cloth mesh.
+
+</p>
+</div>
+
+<h2 align="middle">Part 1: Masses and springs</h2>
+
+<div class="padded">
+  <p>
+    In this part, I built a grid out of Point Masses and Springs that will represent the cloth. Using loops, I evenly spaced the point masses within the width and height paramters and stored them in the 3D vector of 
+    Point Masses. After defining the Point Masses, I looped through them to create structural, shear, and bending constraints between point masses in the form of Springs, as defined by the spec. These are also stored
+    in a 3D vector of Springs. 
+  </p>
+  </div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/no shear.png" align="middle" width="400px" />
+              <figcaption align="middle">No Shearing Constraints</figcaption>
+          </td>
+          <td>
+              <img src="images/only shear.png" align="middle" width="400px" />
+              <figcaption align="middle">Only Shearing Constraints</figcaption>
+          </td>
+      </tr>
+  </table>
+<img src="images/all.png" align="middle" width="400px" />
+<figcaption align="middle">Structural, Shearing, and Bending Constraints</figcaption>
+</div>
+</br>
+
+
+<h2 align="middle">Part 2: Simulation via numerical integration</h2>
+<div class="padded">
+
+<p>
+  In this part I calculated the external forces and spring forces acting upon each point mass and added them into the force parameter of the point masses. I then used Verlet integration
+  to update positions using these forces.
+</p>
+
+<p>
+  Changing the spring constant k affects the bounciness of the cloth wireframe as it falls. With a very low spring constant, the cloth falls very smoothly without much bending.
+  However, with a high spring constant, the cloth appears more bouncy and has more folds that appear after it falls. 
+</p>
+
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/low ks.png" align="middle" width="400px" />
+              <figcaption align="middle">Low Spring Constant</figcaption>
+          </td>
+          <td>
+              <img src="images/high ks.png" align="middle" width="400px" />
+              <figcaption align="middle">High Spring Constant</figcaption>
+          </td>
+      </tr>
+  </table>
+</div>
+
+<div class="padded">
+  <p>
+    Changing the density affects the speed at which the cloth wireframe falls. With a very low density, the cloth wireframe falls very slowly. When the density is high, the cloth falls very quickly, as seen in the images below
+  </p>
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/low density.png" align="middle" width="400px" />
+              <figcaption align="middle">Low Density after ~1 second of falling</figcaption>
+          </td>
+          <td>
+              <img src="images/high density.png" align="middle" width="400px" />
+              <figcaption align="middle">High Desntiy after ~1 second of falling</figcaption>
+          </td>
+      </tr>
+  </table>
+</div>
+
+<div class="padded">
+  <p>
+    With very low damping, the cloth wireframe is extremely bouncy and falls very quickly. It also takes longer to stabilize once it falls as it keeps bouncing. With higher damping, the cloth falls much slower and has many
+    less bounces and waviness as it falls and after it is done falling. 
+  </p>
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/low damping.png" align="middle" width="400px" />
+              <figcaption align="middle">Low Damping after falling (due to bouncing back)</figcaption>
+          </td>
+          <td>
+              <img src="images/high damping.png" align="middle" width="400px" />
+              <figcaption align="middle">High Damping after falling</figcaption>
+          </td>
+      </tr>
+  </table>
+</div>
+
+<div class="padded">
+  <p>
+    Below is the cloth in its final resting state, shown with the wireframe and with shading. 
+  </p>
+</div>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/final.png" align="middle" width="400px" />
+              <figcaption align="middle">Wireframe</figcaption>
+          </td>
+          <td>
+              <img src="images/final color.png" align="middle" width="400px" />
+              <figcaption align="middle">Normal Shading</figcaption>
+          </td>
+      </tr>
+  </table>
+</div>
+
+</br>
+
+<h2 align="middle">Part 3: Handling collisions with planes</h2>
+<div class="padded">
+
+<p>
+  In this part I implemented functionality for collisions between the cloth and objects such as a sphere and a plane. I did this by first checking for intersections
+  between the point mass and the collision objects and then calculating a correction vector so that the cloth would end up resting on the object instead of passing through. 
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/500 sphere.png" align="middle" width="400px" />
+              <figcaption align="middle">Spring Constant = 500</figcaption>
+          </td>
+          <td>
+              <img src="images/5000 sphere.png" align="middle" width="400px" />
+              <figcaption align="middle">Spring Constant = 5000</figcaption>
+          </td>
+      </tr>
+  </table>
+  <td>
+    <img src="images/50000 sphere.png" align="middle" width="400px" />
+    <figcaption align="middle">Spring Constant = 50000</figcaption>
+</td>
+</div>
+
+<p>
+   Having a lower spring constant results in more folds in the cloth which also means smaller folds. Meanwhile, as seen in the differences between the images above,
+   when there is a high spring constant, there are less folds, but larger folds, which results in some self collision from the cloth. 
+</p>
+</br>
+
+<div align="center">
+  <td>
+    <img src="images/plane.png" align="middle" width="400px" />
+    <figcaption align="middle">Plane Cloth Interaction</figcaption>
+  </td>
+</div>
+
+<p>
+  Above is the result of the cloth falling onto a plane and resting on the top of the plane. 
+</p>
+
+</div>
+
+<h2 align="middle">Part 4: Handling self-collisions</h2>
+<div class="padded">
+
+<p>
+  In this part I handled the case of the cloth colliding with itself and made sure that when the cloth is about to collide, that a correction vector makes
+  sure that it stays properly spaced out. This was implemented by dividing the surface into 3D box volumes and then using a hash map with a unique hash value 
+  each box volume and the collection of vectors contained within the box volume. 
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/early.png" align="middle" width="400px" />
+              <figcaption align="middle">Initial Position</figcaption>
+          </td>
+          <td>
+              <img src="images/middle.png" align="middle" width="400px" />
+              <figcaption align="middle">Middle Position</figcaption>
+          </td>
+      </tr>
+  </table>
+  <td>
+    <img src="images/late.png" align="middle" width="400px" />
+    <figcaption align="middle">Final Position</figcaption>
+</td>
+</div>
+
+</br>
+
+<p>
+  As seen below, low density in this part again results in the cloth dropping much slower and having more distinguishable folds when compared to high density. 
+  Meanwhile, low spring constant results in a more frequent, smalling folding whereas high spring constant results in less frequent and larger folding in the cloth.
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/low density 2.png" align="middle" width="400px" />
+              <figcaption align="middle">Low Density</figcaption>
+          </td>
+          <td>
+              <img src="images/high density 2.png" align="middle" width="400px" />
+              <figcaption align="middle">High Density</figcaption>
+          </td>
+      </tr>
+      <tr>
+        <td>
+            <img src="images/low ks 2.png" align="middle" width="400px" />
+            <figcaption align="middle">Low ks</figcaption>
+        </td>
+        <td>
+            <img src="images/high ks 2.png" align="middle" width="400px" />
+            <figcaption align="middle">High ks</figcaption>
+        </td>
+    </tr>
+  </table>
+</div>
+
+<h2 align="middle">Part 5: Shaders</h2>
+<div class="padded">
+
+<p>
+  In this part I implemented various shading techniques on the cloth sphere. Shaders programs are programs in computer graphics that help render how objects appear, 
+  including their color and texture. Vertex Shaders draw shapes using 3D coordinates while Fragment Shaders render colors and textures, meaning they work together to
+  render objects in a scene.
+</p>
+
+<p>
+  Blinn-Phong, or Specular Shading, is a shading model that relies on calculating the dot product between the surface normal and the bisector h to calculate the intensity
+  of shading. It combines ambient, diffuse, and specular components to create a full shading.
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/ambient.png" align="middle" width="400px" />
+              <figcaption align="middle">Ambient Component</figcaption>
+          </td>
+          <td>
+              <img src="images/diffuse.png" align="middle" width="400px" />
+              <figcaption align="middle">Diffuse Component</figcaption>
+          </td>
+      </tr>
+      <tr>
+          <td>
+            <img src="images/specular.png" align="middle" width="400px" />
+            <figcaption align="middle">Specular Component</figcaption>
+          </td>
+          <td>
+            <img src="images/phong.png" align="middle" width="400px" />
+            <figcaption align="middle">Blinn-Phong</figcaption>
+          </td>
+      </tr>
+  </table>
+</div>
+
+<p>
+  Below is an example of texture mapping on the surface of the cloth and the sphere.
+</p>
+
+<div align="center">
+  <img src="images/texture.png" align="middle" width="400px" />
+    <figcaption align="middle">Texture Mapping</figcaption>
+</div>
+
+<p>
+  Below are examples of bump vs displacement mapping. As you can see the bump mapping leads to a much cleaner texture while the displacement mapping leads
+  to a very rough surface. 
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/bump.png" align="middle" width="400px" />
+              <figcaption align="middle">Bump Mapping</figcaption>
+          </td>
+          <td>
+              <img src="images/displacement.png" align="middle" width="400px" />
+              <figcaption align="middle">Displacement</figcaption>
+          </td>
+      </tr>
+  </table>
+</div>
+
+<p>
+  Below are examples of bump vs displacement mapping using different paramters. The larger parameters result in a slightly smoother and thinner texture 
+  on the sphere for both bump and displacement.
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/bump test 1.png" align="middle" width="400px" />
+              <figcaption align="middle">Bump Mapping at -o 16 -a 16</figcaption>
+          </td>
+          <td>
+              <img src="images/displacement test 1.png" align="middle" width="400px" />
+              <figcaption align="middle">Displacement Mapping at -o 16 -a 16</figcaption>
+          </td>
+      </tr>
+      <tr>
+        <td>
+            <img src="images/bump test 2.png" align="middle" width="400px" />
+            <figcaption align="middle">Bump Mapping at -o 128 -a 128</figcaption>
+        </td>
+        <td>
+            <img src="images/displacement test 2.png" align="middle" width="400px" />
+            <figcaption align="middle">Displacement Mapping at -o 128 -a 128</figcaption>
+        </td>
+    </tr>
+  </table>
+</div>
+
+<p>
+  Below are examples of Mirror Shading on the cloth and the sphere.
+</p>
+
+<div align="center">
+  <table style="width=100%">
+      <tr>
+          <td>
+              <img src="images/mirror.png" align="middle" width="400px" />
+              <figcaption align="middle"></figcaption>
+          </td>
+          <td>
+              <img src="images/mirror 2.png" align="middle" width="400px" />
+              <figcaption align="middle"></figcaption>
+          </td>
+      </tr>
+  </table>
+</div>
+
+
+</body>
 </html>
